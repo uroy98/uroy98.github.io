@@ -45,12 +45,19 @@ p{margin:0 0 1em}
 
 /* nav */
 .nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:16px}
 .brand{font-family:var(--sans);font-weight:700;color:var(--ink);text-decoration:none;font-size:1.05rem}
 .nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-family:var(--sans);font-size:.95rem}
 .nav ul a{color:var(--slate);text-decoration:none}
 .nav ul a:hover{color:var(--ink)}
-@media (max-width:760px){.nav ul{display:none}}
+.nav .brand{opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s}
+.nav.scrolled .brand{opacity:1;visibility:visible}
+@media (max-width:760px){
+  .nav{position:fixed;left:0;right:0;top:0;padding-top:env(safe-area-inset-top,0px);transform:translateY(-110%);transition:transform .25s ease}
+  .nav.scrolled{transform:none}
+  .nav ul{display:none}
+}
+@media (prefers-reduced-motion: reduce){.nav,.nav .brand{transition:none}}
 
 /* hero */
 .hero{padding:64px 0 56px}
@@ -171,7 +178,7 @@ footer p{color:var(--slate);margin:8px 0 0;font-family:var(--sans);font-size:.95
 
 <nav class="nav" aria-label="Main">
   <div class="wrap">
-    <a class="brand" href="#top">Upasana Roy</a>
+    <a class="brand" href="#top" tabindex="-1">Upasana Roy</a>
     <ul>
       <li><a href="#research">Research</a></li>
       <li><a href="#experience">Experience</a></li>
@@ -339,6 +346,16 @@ footer p{color:var(--slate);margin:8px 0 0;font-family:var(--sans);font-size:.95
 </footer>
 
 <script>
+(function(){
+  var nav=document.querySelector(".nav"), h1=document.querySelector(".hero h1"), brand=document.querySelector(".nav .brand");
+  if(nav&&h1&&"IntersectionObserver" in window){
+    new IntersectionObserver(function(es){
+      var gone=!es[0].isIntersecting;
+      nav.classList.toggle("scrolled",gone);
+      brand.tabIndex=gone?0:-1;
+    },{rootMargin:"-56px 0px 0px 0px"}).observe(h1);
+  } else if(nav){ nav.classList.add("scrolled"); if(brand) brand.tabIndex=0; }
+})();
 (function(){
   var data=[
     ["Efaproxiral","Anticancer, used with radiotherapy",81,82],
